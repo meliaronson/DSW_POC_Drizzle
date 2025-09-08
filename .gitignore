@@ -1,0 +1,27 @@
+# dependencias
+node_modules/
+
+# builds
+dist/
+build/
+
+# coverage reports
+coverage/
+
+# API keys y secretos
+.env
+.env.*
+
+# logs
+*.log
+
+# VSCode
+.vscode/
+.history/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
