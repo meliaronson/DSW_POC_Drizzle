@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/mysql2';
 import { eq } from 'drizzle-orm';
-import { usersTable } from './db/schema';
+//import { usersTable } from './db/schema';
   
+
+/*
 const db = drizzle(process.env.DATABASE_URL!);
 
 async function main() {
@@ -24,7 +26,7 @@ async function main() {
     age: number;
     email: string;
   }[]
-  */
+  
 
   await db
     .update(usersTable)
@@ -38,4 +40,4 @@ async function main() {
   console.log('User deleted!')
 }
 
-main();
+main();*/
