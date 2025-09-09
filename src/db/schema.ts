@@ -1,14 +1,5 @@
 import { relations } from 'drizzle-orm';
 import { int, mysqlTable, serial, varchar } from 'drizzle-orm/mysql-core';
-
-export const usersTable = mysqlTable('users_table', {
-  id: serial().primaryKey(),
-  name: varchar({ length: 255 }).notNull(),
-  age: int().notNull(),
-  email: varchar({ length: 255 }).notNull().unique(),
-});
-
-
 import { mysqlTable as table } from "drizzle-orm/mysql-core";
 import * as t from "drizzle-orm/mysql-core";
 import { AnyMySqlColumn } from "drizzle-orm/mysql-core";

@@ -1,12 +1,25 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from "mysql2/promise";
 import { eq } from 'drizzle-orm';
 //import { usersTable } from './db/schema';
-  
+
+
+const connection = await mysql.createConnection({
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "root",   // tu password
+  database: "mysql",
+});
+
+export const db = drizzle(connection);
+
+
+//const db = drizzle(process.env.DATABASE_URL!);
+
 
 /*
-const db = drizzle(process.env.DATABASE_URL!);
-
 async function main() {
   const user: typeof usersTable.$inferInsert = {
     name: 'John',
@@ -19,7 +32,7 @@ async function main() {
 
   const users = await db.select().from(usersTable);
   console.log('Getting all users from the database: ', users)
-  /*
+  
   const users: {
     id: number;
     name: string;
