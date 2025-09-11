@@ -1,11 +1,11 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "6b7f9d7d-ac7a-4a6a-93fb-825aa7b7c92c",
+  "id": "2adf46a5-a354-4747-a30f-0d8f1d4403e2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "character": {
-      "name": "character",
+    "Character": {
+      "name": "Character",
       "columns": {
         "id": {
           "name": "id",
@@ -42,8 +42,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "class": {
-          "name": "class",
+        "classId": {
+          "name": "classId",
           "type": "int",
           "primaryKey": false,
           "notNull": false,
@@ -52,12 +52,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "character_class_characterClass_id_fk": {
-          "name": "character_class_characterClass_id_fk",
-          "tableFrom": "character",
-          "tableTo": "characterClass",
+        "Character_classId_CharacterClass_id_fk": {
+          "name": "Character_classId_CharacterClass_id_fk",
+          "tableFrom": "Character",
+          "tableTo": "CharacterClass",
           "columnsFrom": [
-            "class"
+            "classId"
           ],
           "columnsTo": [
             "id"
@@ -67,8 +67,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "character_id": {
-          "name": "character_id",
+        "Character_id": {
+          "name": "Character_id",
           "columns": [
             "id"
           ]
@@ -77,8 +77,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "characterClass": {
-      "name": "characterClass",
+    "CharacterClass": {
+      "name": "CharacterClass",
       "columns": {
         "id": {
           "name": "id",
@@ -105,8 +105,8 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "characterClass_id": {
-          "name": "characterClass_id",
+        "CharacterClass_id": {
+          "name": "CharacterClass_id",
           "columns": [
             "id"
           ]
@@ -115,8 +115,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "character_items": {
-      "name": "character_items",
+    "CharactersItems": {
+      "name": "CharactersItems",
       "columns": {
         "character_id": {
           "name": "character_id",
@@ -135,10 +135,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "character_items_character_id_character_id_fk": {
-          "name": "character_items_character_id_character_id_fk",
-          "tableFrom": "character_items",
-          "tableTo": "character",
+        "CharactersItems_character_id_Character_id_fk": {
+          "name": "CharactersItems_character_id_Character_id_fk",
+          "tableFrom": "CharactersItems",
+          "tableTo": "Character",
           "columnsFrom": [
             "character_id"
           ],
@@ -148,10 +148,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "character_items_item_id_item_id_fk": {
-          "name": "character_items_item_id_item_id_fk",
-          "tableFrom": "character_items",
-          "tableTo": "item",
+        "CharactersItems_item_id_Item_id_fk": {
+          "name": "CharactersItems_item_id_Item_id_fk",
+          "tableFrom": "CharactersItems",
+          "tableTo": "Item",
           "columnsFrom": [
             "item_id"
           ],
@@ -166,8 +166,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "item": {
-      "name": "item",
+    "Item": {
+      "name": "Item",
       "columns": {
         "id": {
           "name": "id",
@@ -194,8 +194,8 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "item_id": {
-          "name": "item_id",
+        "Item_id": {
+          "name": "Item_id",
           "columns": [
             "id"
           ]

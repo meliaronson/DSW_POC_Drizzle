@@ -1,7 +1,14 @@
 import { relations } from 'drizzle-orm'
+import { primaryKey } from 'drizzle-orm/gel-core'
 import { int, varchar, AnyMySqlColumn, mysqlTable } from 'drizzle-orm/mysql-core'
 
 // Crear database
+
+export const characterClass = mysqlTable('CharacterClass', {
+  id: int().primaryKey().autoincrement(),
+  name: varchar('name', { length: 256 }).notNull(),
+  descripcion: varchar('descripcion', { length: 1000 }).notNull(),
+})
 
 export const character = mysqlTable('Character', {
   id: int().primaryKey().autoincrement(),
@@ -9,13 +16,7 @@ export const character = mysqlTable('Character', {
   level: int('level').notNull(),
   hp: int('hp').notNull(),
   attack: int('attack').notNull(),
-  class: int().references(() => characterClass.id),
-})
-
-export const characterClass = mysqlTable('CharacterClass', {
-  id: int().primaryKey().autoincrement(),
-  name: varchar('name', { length: 256 }).notNull(),
-  descripcion: varchar('descripcion', { length: 1000 }).notNull(),
+  classId: int().references(() => characterClass.id),
 })
 
 export const item = mysqlTable('Item', {
@@ -33,6 +34,11 @@ export const characterItems = mysqlTable('CharactersItems', {
     .notNull()
     .references(() => item.id, { onDelete: 'cascade' }),
 })
+
+// Character <-> Class
+export const characterClassRelations = relations(character, ({ one }) => ({
+  classC: one(characterClass), // un personaje tiene una clase
+}))
 
 // Character <-> Items
 export const characterRelations = relations(character, ({ many }) => ({

@@ -3,16 +3,11 @@ import { drizzle } from 'drizzle-orm/mysql2'
 import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './swagger.js'
-import {
-  character,
-  characterClass,
-  characterItems,
-  characterItemsRelations,
-  item,
-} from './db/schema.js'
-import { eq, SQL } from 'drizzle-orm'
+import * as schema from './db/schema.js'
+import { character, characterClass, item } from './db/schema.js'
+import { eq } from 'drizzle-orm'
 
-const db = drizzle(process.env.DATABASE_URL!)
+const db = drizzle(process.env.DATABASE_URL!, { schema, mode: 'default' })
 
 const app = express()
 app.use(express.json())
@@ -99,39 +94,15 @@ app.get('/characters', async (req, res) => {
       class: characterClass.name,
     })
     .from(character)
-    .innerJoin(characterClass, eq(character.class, characterClass.id))
+    .innerJoin(characterClass, eq(character.classId, characterClass.id))
     .orderBy(character.id)
     .limit(Number(limit)) // the number of rows to return
     .offset(Number(page)) // the number of rows to skip
   res.json(result)
 })
 
-// 3. Obtener personaje por id
-app.get('/characters/:id', async (req, res) => {
-  const { id } = req.params
-  const char = await db
-    .select({
-      id: character.id,
-      name: character.name,
-      level: character.level,
-      hp: character.hp,
-      attack: character.attack,
-      class: {
-        className: characterClass.name,
-        classDesc: characterClass.descripcion,
-      },
-      items: {
-        itemName: item.name,
-        itemDesc: item.descripcion,
-      },
-    })
-    .from(character)
-    .where(eq(character.id, Number(id)))
-    .innerJoin(characterClass, eq(character.class, characterClass.id))
-    .innerJoin(characterItems, eq(character.id, characterItems.characterId))
-    .leftJoin(item, eq(characterItems.itemId, item.id))
-  if (!character) return res.status(404).json({ error: 'Character no encontrado' })
-  res.json(character)
+const chars = await db.query.character.findMany({
+  with: {},
 })
 
 const PORT = process.env.PORT
