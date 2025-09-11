@@ -1,6 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { primaryKey } from 'drizzle-orm/gel-core'
-import { int, varchar, AnyMySqlColumn, mysqlTable } from 'drizzle-orm/mysql-core'
+import { int, varchar, AnyMySqlColumn, mysqlTable, primaryKey } from 'drizzle-orm/mysql-core'
 
 // Crear database
 
@@ -26,38 +25,45 @@ export const item = mysqlTable('Item', {
 })
 
 // Tabla intermedia (junction)
-export const characterItems = mysqlTable('CharactersItems', {
-  characterId: int('character_id')
-    .notNull()
-    .references(() => character.id, { onDelete: 'cascade' }),
-  itemId: int('item_id')
-    .notNull()
-    .references(() => item.id, { onDelete: 'cascade' }),
-})
+export const characterToItems = mysqlTable(
+  'CharactersItems',
+  {
+    characterId: int('character_id')
+      .notNull()
+      .references(() => character.id, { onDelete: 'cascade' }),
+    itemId: int('item_id')
+      .notNull()
+      .references(() => item.id, { onDelete: 'cascade' }),
+  },
+  (t) => [primaryKey({ columns: [t.characterId, t.itemId] })]
+)
 
 // Character <-> Class
 export const characterClassRelations = relations(character, ({ one }) => ({
-  classC: one(characterClass), // un personaje tiene una clase
+  classC: one(characterClass, {
+    fields: [character.classId],
+    references: [characterClass.id],
+  }), // un personaje tiene una clase
 }))
 
 // Character <-> Items
 export const characterRelations = relations(character, ({ many }) => ({
-  items: many(characterItems), // un personaje puede tener muchos items
+  items: many(characterToItems), // un personaje puede tener muchos items
 }))
 
 // Item <-> Characters
 export const itemRelations = relations(item, ({ many }) => ({
-  characters: many(characterItems), // un item puede pertenecer a muchos personajes
+  characters: many(characterToItems), // un item puede pertenecer a muchos personajes
 }))
 
 // CharacterItems <-> Character / Item
-export const characterItemsRelations = relations(characterItems, ({ one }) => ({
+export const characterToItemsRelations = relations(characterToItems, ({ one }) => ({
   character: one(character, {
-    fields: [characterItems.characterId],
+    fields: [characterToItems.characterId],
     references: [character.id],
   }),
   item: one(item, {
-    fields: [characterItems.itemId],
+    fields: [characterToItems.itemId],
     references: [item.id],
   }),
 }))

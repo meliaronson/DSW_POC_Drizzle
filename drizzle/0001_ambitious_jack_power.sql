@@ -1,0 +1,1 @@
+ALTER TABLE `CharactersItems` ADD PRIMARY KEY(`character_id`,`item_id`);
