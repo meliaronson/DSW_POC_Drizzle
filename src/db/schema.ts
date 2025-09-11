@@ -1,13 +1,15 @@
 import { relations } from 'drizzle-orm'
 import { int, varchar, AnyMySqlColumn, mysqlTable } from 'drizzle-orm/mysql-core'
 
+// Crear database
+
 export const character = mysqlTable('Character', {
   id: int().primaryKey().autoincrement(),
   name: varchar('name', { length: 256 }).notNull(),
   level: int('level').notNull(),
   hp: int('hp').notNull(),
   attack: int('attack').notNull(),
-  class: int().references((): AnyMySqlColumn => characterClass.id),
+  class: int().references(() => characterClass.id),
 })
 
 export const characterClass = mysqlTable('CharacterClass', {
@@ -22,7 +24,7 @@ export const item = mysqlTable('Item', {
   descripcion: varchar('descripcion', { length: 1000 }).notNull(),
 })
 
-// Tabla intermedia (junctiomysqlTable)
+// Tabla intermedia (junction)
 export const characterItems = mysqlTable('CharactersItems', {
   characterId: int('character_id')
     .notNull()
@@ -32,17 +34,17 @@ export const characterItems = mysqlTable('CharactersItems', {
     .references(() => item.id, { onDelete: 'cascade' }),
 })
 
-// Character ↔ Items
+// Character <-> Items
 export const characterRelations = relations(character, ({ many }) => ({
   items: many(characterItems), // un personaje puede tener muchos items
 }))
 
-// Item ↔ Characters
+// Item <-> Characters
 export const itemRelations = relations(item, ({ many }) => ({
   characters: many(characterItems), // un item puede pertenecer a muchos personajes
 }))
 
-// CharacterItems ↔ Character / Item
+// CharacterItems <-> Character / Item
 export const characterItemsRelations = relations(characterItems, ({ one }) => ({
   character: one(character, {
     fields: [characterItems.characterId],
