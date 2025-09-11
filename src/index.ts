@@ -1,89 +1,140 @@
 import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/mysql2'
-import { eq } from 'drizzle-orm'
-import { character, characterClass } from './db/schema.js'
+import express from 'express'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './swagger.js'
+import {
+  character,
+  characterClass,
+  characterItems,
+  characterItemsRelations,
+  item,
+} from './db/schema.js'
+import { eq, SQL } from 'drizzle-orm'
 
-// Funciones de validación
-async function validateClassName(name: string) {
-  const n = await db.select().from(characterClass).where(eq(characterClass.name, name))
-  if (n.length > 0) {
-    return true
+const db = drizzle(process.env.DATABASE_URL!)
+
+const app = express()
+app.use(express.json())
+// Configuracion Swagger
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }))
+app.get('/docs.json', (_req, res) => res.json(swaggerSpec))
+
+/*
+  CharacterClass
+  -----------------------
+*/
+
+// 1. Crear clase
+app.post('/classes', async (req, res) => {
+  const c = req.body
+  try {
+    const cls = await db.insert(characterClass).values(c)
+
+    res.json(cls)
+  } catch (err) {
+    res.status(400).json({ error: 'Error creando clase', detail: String(err) })
   }
-  return false
-}
-async function validateCharName(name: string) {
-  const n = await db.select().from(character).where(eq(character.name, name))
-  if (n.length > 0) {
-    return true
+})
+
+// 2. Listar clases
+app.get('/classes', async (_req, res) => {
+  const classes = await db.select().from(characterClass).orderBy(characterClass.name)
+
+  res.json(classes)
+})
+
+/* 
+ Item
+ ------------
+*/
+
+// 1. Crear ítem
+app.post('/items', async (req, res) => {
+  const i = req.body
+  try {
+    const it = await db.insert(item).values(i)
+
+    res.json(it)
+  } catch (err) {
+    res.status(400).json({ error: 'Error creando ítem', detail: String(err) })
   }
-  return false
-}
+})
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL no está definido en el archivo .env')
-}
+// 2. Listar ítems
+app.get('/items', async (_req, res) => {
+  const items = await db.select().from(item).orderBy(item.name)
+  res.json(items)
+})
 
-const db = drizzle(process.env.DATABASE_URL)
+/* 
+ Character
+ ------------
+*/
 
-//---------- CRUD characterClass ----------
-console.log('--- CRUD CharacterClass --- \n')
+// 1. Crear personaje
+app.post('/characters', async (req, res) => {
+  const c = req.body
 
-// Create
-const newClass: typeof characterClass.$inferInsert = {
-  name: 'Lord Sith',
-  descripcion: 'A wielder of the force who has embraced the dark side',
-}
-if (!(await validateClassName(newClass.name))) {
-  await db.insert(characterClass).values(newClass)
-  console.log('New character class created!')
-}
+  try {
+    const char = await db.insert(character).values(c)
 
-// Read
-const classes = await db.select().from(characterClass)
-console.log('Getting all character classes from the database: ', classes)
+    res.json(char)
+  } catch (err) {
+    res.status(400).json({ error: 'Error creando personaje', detail: String(err) })
+  }
+})
 
-// Update
-await db
-  .update(characterClass)
-  .set({
-    descripcion: 'Wielder of the force who has embraced the dark side',
-  })
-  .where(eq(characterClass.name, 'Lord Sith'))
-console.log('Character class info updated!')
+// 2. Listar personajes con clases e items, paginado
+app.get('/characters', async (req, res) => {
+  const { page, limit } = req.body
+  const result = await db
+    .select({
+      id: character.id,
+      name: character.name,
+      level: character.level,
+      hp: character.hp,
+      attack: character.attack,
+      class: characterClass.name,
+    })
+    .from(character)
+    .innerJoin(characterClass, eq(character.class, characterClass.id))
+    .orderBy(character.id)
+    .limit(Number(limit)) // the number of rows to return
+    .offset(Number(page)) // the number of rows to skip
+  res.json(result)
+})
 
-// Delete
-// await db.delete(characterClass).where(eq(characterClass.name, 'Lord Sith'))
-// console.log('Character class deleted!')
+// 3. Obtener personaje por id
+app.get('/characters/:id', async (req, res) => {
+  const { id } = req.params
+  const char = await db
+    .select({
+      id: character.id,
+      name: character.name,
+      level: character.level,
+      hp: character.hp,
+      attack: character.attack,
+      class: {
+        className: characterClass.name,
+        classDesc: characterClass.descripcion,
+      },
+      items: {
+        itemName: item.name,
+        itemDesc: item.descripcion,
+      },
+    })
+    .from(character)
+    .where(eq(character.id, Number(id)))
+    .innerJoin(characterClass, eq(character.class, characterClass.id))
+    .innerJoin(characterItems, eq(character.id, characterItems.characterId))
+    .leftJoin(item, eq(characterItems.itemId, item.id))
+  if (!character) return res.status(404).json({ error: 'Character no encontrado' })
+  res.json(character)
+})
 
-//---------- CRUD character ----------
-
-// Create
-const newCharacter: typeof character.$inferInsert = {
-  name: 'Darth Vader',
-  level: 10,
-  hp: 100,
-  attack: 25,
-  class: 12,
-}
-if (!(await validateCharName(newCharacter.name))) {
-  await db.insert(character).values(newCharacter)
-  console.log('New character created!')
-}
-
-// Read
-const characters = await db.select().from(character)
-console.log('Getting all characters from the database: ', characters)
-
-// Update
-await db
-  .update(character)
-  .set({
-    level: 13,
-    class: 12,
-  })
-  .where(eq(character.name, 'Darth Vader'))
-console.log('Character info updated!')
-
-// Delete
-// await db.delete(character).where(eq(character.name, 'Darth Vader'))
-// console.log('Character deleted!')
+const PORT = process.env.PORT
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`)
+})
