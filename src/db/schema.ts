@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { int, varchar, AnyMySqlColumn, mysqlTable, primaryKey } from 'drizzle-orm/mysql-core'
+import { int, varchar, mysqlTable, primaryKey } from 'drizzle-orm/mysql-core'
 
 // Crear database
 
