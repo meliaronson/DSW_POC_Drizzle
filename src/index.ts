@@ -45,7 +45,6 @@ console.log('\nCharacter class modificado: ', charMod)
 
 // Delete
 // await db.delete(characterClass).where(eq(characterClass.name, 'Lord Sith'))
-// console.log('Character class deleted!')
 
 /*--------------------
 item
