@@ -10,7 +10,7 @@ import {
   item,
 } from './db/schema.js'
 
-const db = drizzle(process.env.DATABASE_URL!, { schema, mode: 'default' })
+const db = drizzle(process.env.DATABASE_URL!)
 
 // seeding
 await reset(db, schema)
@@ -19,10 +19,10 @@ await seed(db, schema) // por default inserta 10 registros de c/tabla
 // Read
 const result = await db
   .select({
-    id: character.id,
-    name: character.name,
-    className: characterClass.name,
-    items: item.name,
+    character_id: character.id,
+    character_name: character.name,
+    class_name: characterClass.name,
+    item_name: item.name,
   })
   .from(character)
   .innerJoin(characterClass, eq(character.classId, characterClass.id))
