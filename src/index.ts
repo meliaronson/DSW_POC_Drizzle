@@ -11,9 +11,9 @@ import {
 } from './db/schema.js'
 
 const db = drizzle(process.env.DATABASE_URL!, { schema, mode: 'default' })
-await reset(db, schema)
 
 // seeding
+await reset(db, schema)
 await seed(db, schema) // por default inserta 10 registros de c/tabla
 
 // Read
